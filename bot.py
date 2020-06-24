@@ -77,16 +77,11 @@ while not exitImgFindLoop:
 
 #Download image to be sent
 image_stream = requests.get(extracted[2], stream=True)
-time.sleep(20)
 local_image = open('localImage.jpg', 'wb')
-time.sleep(5)
 image_stream.decode_content = True
 shutil.copyfileobj(image_stream.raw, local_image)
-time.sleep(20)
 
 #Send Tweet
 artPhoto = open('localImage.jpg', 'rb')
-time.sleep(5) #To allow image time to be completely opened
 response = ArtEveryHour.upload_media(media=artPhoto)
-time.sleep(5) #To allow image time to load onto Twitter
 ArtEveryHour.update_status(status='%s, %s.\n%s'%(extracted[1], extracted[0], link), media_ids=[response['media_id']])
