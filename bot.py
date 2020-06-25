@@ -74,12 +74,12 @@ while not exitImgFindLoop:
             linkID = random.randint(0, 100000)
 
     time.sleep(2) #To prevent NGA servers from thinking something is up
-
+    
 #Download image to be sent
 image_stream = requests.get(extracted[2], stream=True)
-local_image = open('localImage.jpg', 'wb')
-image_stream.decode_content = True
-shutil.copyfileobj(image_stream.raw, local_image)
+with  open('localImage.jpg', 'wb') as image:
+    for chunk in image_stream:
+        image.write(chunk)
 
 #Send Tweet
 artPhoto = open('localImage.jpg', 'rb')
