@@ -1,4 +1,4 @@
 #!/bin/bash
 
-cd /home/pi/Code/Python/TwitterBots/DailyArt
+cd /path/to/clearBlacklist
 python3 clearBlacklist.py
