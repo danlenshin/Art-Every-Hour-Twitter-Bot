@@ -6,11 +6,16 @@ import time
 from twython import Twython
 import shutil
 import requests
+import sys
 
 #Function to check if the site has an image link according to the img_link_regex
 def siteHasImage(soup):
-    if soup.find("meta", property="og:image"):
-        return True
+    if soup.find("div", {"id": "art-object-carousel"}).find("img"):
+        if soup.find("div", {"id": "art-object-carousel"}).find("img")["src"] != "/content/dam/ngaweb/placeholder-440x400.jpg": #Checks if the image url is not the "no image" placeholder
+            return True
+        else:
+            return False
+
     else:
         return False
 
@@ -39,6 +44,8 @@ Access_token = ''
 Access_token_secret = ''
 ArtEveryHour = Twython(API_key, API_secret_key, Access_token, Access_token_secret)
 
+attempts = 0 #Keeps track of the amount of times the bot has attempted to find an image
+
 while not exitImgFindLoop:
     #Build link and catch 404 errors
     findValidLink = True
@@ -62,10 +69,10 @@ while not exitImgFindLoop:
     if siteHasImage(soupLink):
         title = soupLink.find("meta", property="og:title")
         artist = soupLink.find("meta", property="og:description")
-        img_link = soupLink.find("meta", property="og:image")
+        img_link = soupLink.find("div", {"id": "art-object-carousel"}).find("img")
         extracted.append(title["content"])
         extracted.append(artist["content"])
-        extracted.append(img_link["content"])
+        extracted.append(img_link["src"])
         exitImgFindLoop = True
     else:
         addToBlacklist(linkID)
@@ -74,6 +81,11 @@ while not exitImgFindLoop:
             linkID = random.randint(0, 100000)
 
     time.sleep(2) #To prevent NGA servers from thinking something is up
+    attempts += 1
+
+    #To prevent perpetual looping
+    if attempts > 500: 
+        sys.exit(0)
     
 #Download image to be sent
 image_stream = requests.get(extracted[2], stream=True)
